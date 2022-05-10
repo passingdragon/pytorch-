@@ -36,7 +36,9 @@ for i in range(num_epochs):
     for index,(X,y) in enumerate(train_iter):
         # 向前传播
         y_ = net(X)
-        l = loss(y_,y).sum()
+        # 单热点编码
+        y_onehot = F.one_hot(y, num_classes=10).float()
+        l = loss(y_,y_onehot).sum()
         # 梯度清零
         trainer.zero_grad()
         # 向后传播
@@ -48,5 +50,7 @@ for i in range(num_epochs):
             print(i,l.item())
 
 library.pltLoss(train_loss)
+print(library.evaluate_accuracy(net,test_iter))
+# 0.7703
 
 
