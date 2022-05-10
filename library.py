@@ -33,3 +33,33 @@ def pltLoss(train_loss:list):
     plt.plot(train_loss,label='loss')
     plt.legend(loc="best")
     plt.show()
+def sumAccuracy(y_pre,y):
+    # 预测正确的数量
+    if len(y_pre.shape)>1 and y_pre.shape[1] > 1:
+        y_pre = y_pre.argmax(axis = 1)
+    cmp = y_pre.type(y.dtype) == y
+    return float(cmp.type(y.dtype).sum())
+
+def evaluate_accuracy(net,data_iter):
+    # 计算准确率
+    if isinstance(net,torch.nn.Module):
+        net.eval()
+    metric = Accumulator(2)
+    with torch.no_grad():
+        for X,y in data_iter:
+            metric.add(sumAccuracy(net(X),y),y.numel())
+    return metric[0]/metric[1]
+
+class Accumulator:
+    def __init__(self,n):
+        self.data = [0.0]*n
+
+    def add(self,*args):
+        self.data = [a+float(b) for a,b in zip(self.data,args)]
+
+    def reset(self):
+        self.data = [0.0]*len(self.data)
+
+    def __getitem__(self,idx):
+        return self.data[idx]
+  
